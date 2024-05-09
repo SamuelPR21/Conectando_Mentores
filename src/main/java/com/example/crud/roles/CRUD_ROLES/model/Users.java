@@ -2,7 +2,6 @@ package com.example.crud.roles.CRUD_ROLES.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Data.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,5 +20,12 @@ public class Users {
     private String user_password;
     private String user_name;
     private String user_apellido;
+
+    @Column( columnDefinition = "BOOLEAN")
+    private Boolean locked;
+
+    @Column( columnDefinition = "BOOLEAN")
+    private Boolean disabled;
+
 
 }

@@ -18,7 +18,7 @@ public class UserController {
 
     @GetMapping("/users")
     public List<Users> obtenerTodosLosUsuarios(){
-        return userRespository.findAll();
+        return (List<Users>) userRespository.findAll();
     }
 
     @PostMapping("/users/nuevo")
