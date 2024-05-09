@@ -2,6 +2,8 @@ package com.example.crud.roles.CRUD_ROLES.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @Data
 @Table(name = "users")
 public class Users {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +30,6 @@ public class Users {
     @Column( columnDefinition = "BOOLEAN")
     private Boolean disabled;
 
-
+    @OneToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    private List<Roles> roles;
 }
