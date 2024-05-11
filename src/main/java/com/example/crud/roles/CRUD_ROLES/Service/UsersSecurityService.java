@@ -1,18 +1,13 @@
 package com.example.crud.roles.CRUD_ROLES.Service;
 
-import ch.qos.logback.core.encoder.Encoder;
 import com.example.crud.roles.CRUD_ROLES.model.Roles;
-import com.example.crud.roles.CRUD_ROLES.model.User_Rol;
 import com.example.crud.roles.CRUD_ROLES.model.Users;
 import com.example.crud.roles.CRUD_ROLES.repository.UserRespository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
