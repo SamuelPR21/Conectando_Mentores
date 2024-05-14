@@ -22,8 +22,10 @@ public class SecurityConfig {
                 //Para cada cosa se requiere autenticacion
                 .authorizeHttpRequests(customizeRequests -> {
                             customizeRequests
+                                    .requestMatchers(HttpMethod.POST, "/documents/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/**").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.POST, "/api/**").hasAnyRole("ADMIN", "CUSTOMER")
+                                    //.requestMatchers(HttpMethod.POST, "/documents/**").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.PATCH, "/api/**").hasRole("ADMIN")
                                     .anyRequest()
