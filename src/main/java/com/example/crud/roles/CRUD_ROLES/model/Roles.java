@@ -2,31 +2,31 @@ package com.example.crud.roles.CRUD_ROLES.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "roles")
-@IdClass(User_Rol.class)
 public class Roles {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id;
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
+    private  Integer id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int rolId;
+    @Enumerated(EnumType.STRING)
+    private  ERole name;
 
-    @Column(nullable = false, length = 20)
-    private String rolName;
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    @Column(name = "granted_date", nullable = false, columnDefinition = "TIMESTAMP" )
-    private LocalDate grantedDate;
+    public ERole getName() {
+        return name;
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
-    private Users users;
+    public void setName(ERole name) {
+        this.name = name;
+    }
 }

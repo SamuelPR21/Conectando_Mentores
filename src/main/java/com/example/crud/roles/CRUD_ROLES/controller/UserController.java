@@ -21,10 +21,6 @@ public class UserController {
         return (List<Users>) userRespository.findAll();
     }
 
-    @PostMapping("/users/nuevo")
-    public Users agregarUsers(@RequestBody Users users){
-        return userRespository.save(users);
-    }
 
     @PatchMapping("/users/editar/{id}")
     public Users editarUsuarios(@PathVariable Integer id, @RequestBody Users users){
