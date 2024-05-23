@@ -14,10 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,45 +24,45 @@ import java.util.stream.Collectors;
 public class LonginController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private  final AuthenticationManager authenticationManager;
 
     @Autowired
     JwtUtils jwtUtils;
 
+    public LonginController(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
+   }
 
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password()));
+    @PostMapping("/user")
+    public ResponseEntity<Void> loginUser(@RequestBody LoginRequest loginRequest) {
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Authentication authentication= this.authenticationManager.authenticate(login);
 
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        System.out.println(authentication.getPrincipal());
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+        String jwt = this.jwtUtils.createUser(loginRequest.getUsername());
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles));
+        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+
     }
 
-    @GetMapping("/all")
-    public String allAccess() {
-        return "Public Content.";
-    }
 
-    @GetMapping("/user")
-    @PreAuthorize("hasRole('USER')")
-    public String userAccess() {
-        return "User Content.";
-    }
+    @PostMapping("/admin")
+    public ResponseEntity<Void> loginAdmin(@RequestBody LoginRequest loginRequest) {
 
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String adminAccess() {
-        return "Admin Content.";
+        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
+
+        Authentication authentication= this.authenticationManager.authenticate(login);
+
+        System.out.println(authentication.getPrincipal());
+
+        String jwt = this.jwtUtils.createAdmin(loginRequest.getUsername());
+
+        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+
     }
 
 }

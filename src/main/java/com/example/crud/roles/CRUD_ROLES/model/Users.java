@@ -50,6 +50,9 @@ public class Users {
         this.user_apellido = user_apellido;
     }
 
+    public Users() {
+
+    }
 
 
     public int getUser_id() {

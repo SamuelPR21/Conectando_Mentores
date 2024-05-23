@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 @EnableWebSecurity
@@ -31,16 +32,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/login/all").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/login/user").hasAuthority("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/login/admin").hasAuthority("ADMIN")
+                        .requestMatchers("/api/login/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/users").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PATCH,"/api/v1/users/editar/{id}").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/users/{id}").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/documents/enviable").hasAuthority("USER")
 
-                        .anyRequest().authenticated());
+                        //Por revisar
+                        .requestMatchers(HttpMethod.POST, "/documents/enviable").hasAuthority("USER")
+                        .requestMatchers(HttpMethod.GET, "/documents/downland").hasAuthority("USER")
+//                        .requestMatchers(HttpMethod.POST, "/api/login/user").hasAuthority("USER")
+//                        .requestMatchers(HttpMethod.GET, "/api/login/admin").hasAuthority("ADMIN")
+
+                        .anyRequest()
+                        .authenticated());
 
         http.authenticationProvider(authenticationProvider());
 
@@ -85,4 +90,10 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/")
+//                .allowedOrigins("*") // Permitir desde cualquier origen
+//                .allowedMethods("*"); // Permitir todos los métodos HTTP
+//    }
 }

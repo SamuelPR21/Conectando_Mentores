@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +41,8 @@ public class SignController {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+
 
 
     @PostMapping("/signup/user")
@@ -71,7 +74,7 @@ public class SignController {
             if (userRole == null){
                 userRole = new Roles();
                 userRole.setName(ERole.ROLE_USER);
-                rolesRespository.save(userRole); // Guardar el nuevo rol en la base de datos
+                rolesRespository.save(userRole);
             }
             roles.add(userRole);
 
@@ -128,7 +131,7 @@ public class SignController {
             if (userRole == null){
                 userRole = new Roles();
                 userRole.setName(ERole.ROLE_ADMIN);
-                rolesRespository.save(userRole); // Guardar el nuevo rol en la base de datos
+                rolesRespository.save(userRole);
             }
             roles.add(userRole);
 
