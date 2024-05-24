@@ -22,47 +22,47 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/login")
 public class LonginController {
-
-    @Autowired
-    private  final AuthenticationManager authenticationManager;
-
-    @Autowired
-    JwtUtils jwtUtils;
-
-    public LonginController(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtils = jwtUtils;
-   }
-
-    @PostMapping("/user")
-    public ResponseEntity<Void> loginUser(@RequestBody LoginRequest loginRequest) {
-
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
-
-        Authentication authentication= this.authenticationManager.authenticate(login);
-
-        System.out.println(authentication.getPrincipal());
-
-        String jwt = this.jwtUtils.createUser(loginRequest.getUsername());
-
-        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
-
-    }
-
-
-    @PostMapping("/admin")
-    public ResponseEntity<Void> loginAdmin(@RequestBody LoginRequest loginRequest) {
-
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
-
-        Authentication authentication= this.authenticationManager.authenticate(login);
-
-        System.out.println(authentication.getPrincipal());
-
-        String jwt = this.jwtUtils.createAdmin(loginRequest.getUsername());
-
-        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
-
-    }
+//
+//    @Autowired
+//    private  final AuthenticationManager authenticationManager;
+//
+//    @Autowired
+//    JwtUtils jwtUtils;
+//
+//    public LonginController(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+//        this.authenticationManager = authenticationManager;
+//        this.jwtUtils = jwtUtils;
+//   }
+////
+//    @PostMapping("/user")
+//    public ResponseEntity<Void> loginUser(@RequestBody LoginRequest loginRequest) {
+//
+//        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
+//
+//        Authentication authentication= this.authenticationManager.authenticate(login);
+//
+//        System.out.println(authentication.getPrincipal());
+//
+//        String jwt = this.jwtUtils.createUser(loginRequest.getUsername());
+//
+//        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+//
+//    }
+//
+//
+//    @PostMapping("/admin")
+//    public ResponseEntity<Void> loginAdmin(@RequestBody LoginRequest loginRequest) {
+//
+//        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password());
+//
+//        Authentication authentication= this.authenticationManager.authenticate(login);
+//
+//        System.out.println(authentication.getPrincipal());
+//
+//        String jwt = this.jwtUtils.createAdmin(loginRequest.getUsername());
+//
+//        return  ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+//
+//    }
 
 }

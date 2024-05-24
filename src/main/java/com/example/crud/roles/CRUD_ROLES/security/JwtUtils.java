@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.io.Decoders;
@@ -19,111 +20,64 @@ import org.springframework.web.util.WebUtils;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.springframework.security.config.Elements.JWT;
+import java.util.function.Function;
 
 
 @Component
 public class JwtUtils {
 
     private  static  String SECRET_KEY = "el_samu";
-    private  static Algorithm ALGORITH = Algorithm.HMAC256(SECRET_KEY);
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-
-    @Value("${pw.app.jwtSecret}")
-    private String jwtSecret;
-
-    @Value("${pw.app.jwtExpirationMs}")
-    private int jwtExpirationMs;
-
-    @Value("${pw.app.jwtCookieName}")
-    private String jwtCookie;
-
-    //Obtener el token de las solictudes  Http
-    public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
-            return null;
-        }
+    public String generateToken(String userName) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userName);
     }
 
 
-    //Para iniciar sesion
-    public String createUser(String username){
-        return com.auth0.jwt.JWT.create()
-                .withSubject(username)
-                .withIssuer("USER")
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
-                .sign(ALGORITH);
-
+    private String createToken(Map<String, Object> claims, String userName){
+        return  Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userName)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    public String createAdmin(String username){
-        return com.auth0.jwt.JWT.create()
-                .withSubject(username)
-                .withIssuer("ADMIN")
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
-                .sign(ALGORITH);
-
+    private Key getSignKey() {
+        byte[] keyBytes= Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    //Genera un cookie con el token con informacion del usuario
-    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
-        return cookie;
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
 
-    //Extrae el nombre de usuario del token JWT
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key())
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
-    private Key key() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
-
-
-    //Evalua si un token es valido
-    public boolean validateJwtToken(String jwt) {
-
-        try {
-            com.auth0.jwt.JWT.require(ALGORITH)
-                    .build()
-                    .verify(jwt);
-
-            return true;
-        }catch (JWTVerificationException e){
-            return false;
-        }
-
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
-    //Para saber a que usuario le corresponde el token
-    public String generateTokenFromUsername(String jwt) {
-        return com.auth0.jwt.JWT.require(ALGORITH)
-                .build()
-                .verify(jwt)
-                .getSubject();
-    }
-
-
-    //Crear una cookie vacía para eliminar el token JWT
-    public ResponseCookie getCleanJwtCookie() {
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null).path("/api").build();
-        return cookie;
-    }
-
 }
