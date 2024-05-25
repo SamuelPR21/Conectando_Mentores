@@ -2,8 +2,10 @@ package com.example.crud.roles.CRUD_ROLES.Service.Documentos;
 
 
 import com.example.crud.roles.CRUD_ROLES.model.Documentos;
+import com.example.crud.roles.CRUD_ROLES.model.Users;
 import com.example.crud.roles.CRUD_ROLES.repository.DocumentosRepository;
 
+import com.example.crud.roles.CRUD_ROLES.repository.UserRespository;
 import com.example.crud.roles.CRUD_ROLES.response.ArchivosRespuesta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,17 +24,27 @@ public class DocumentosService  implements DocumentService{
 
     @Autowired
     private DocumentosRepository documentosRepository;
+    @Autowired
+    private UserRespository userRespository;
 
 
     //Carga archvi a BBDD
     @Override
-    public Documentos store(MultipartFile file) throws  IOException{
+    public Documentos store(MultipartFile file, int userId) throws  IOException{
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
+
+
+        Optional<Users> userOptional = userRespository.findById(userId);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+
+        Users user = userOptional.get();
 
         Documentos documentos = new Documentos();
         documentos.setNombreDocumentos(filename);
         documentos.setType(file.getContentType());
-        documentos.setData(file.getBytes());
+        documentos.setData();
 
         return documentosRepository.save(documentos);
     }
@@ -47,7 +59,7 @@ public class DocumentosService  implements DocumentService{
         }
 
         throw new FileNotFoundException();
-    };
+    }
 
 
     //Consultar lista archivos
@@ -63,10 +75,37 @@ public class DocumentosService  implements DocumentService{
                     .name(dbfile.getNombreDocumentos())
                     .url(fileDownloadUri)
                     .type(dbfile.getType())
-                    .size(dbfile.getData().length).build();
+                    .size(dbfile.getData()).build();
         }).collect(Collectors.toList());
 
         return files;
+    }
+
+    //Consultar lista de archivos por usuario
+
+    @Override
+    public List<ArchivosRespuesta> getAllFilesByUserId(int userId){
+
+        Optional<Users> usersOptional = userRespository.findById(userId);
+        if(!usersOptional.isPresent()){
+            throw new RuntimeException("user not found");
+        }
+
+        Users user = usersOptional.get();
+        return user.getDocumentos().stream().map(dbfile -> {
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("api/fileManager/files/")
+                    .path(String.valueOf(dbfile.getIdDocumemtos()))
+                    .toUriString();
+
+            return ArchivosRespuesta.builder()
+                    .name(dbfile.getNombreDocumentos())
+                    .url(fileDownloadUri)
+                    .type(dbfile.getType())
+                    .size(dbfile.getData())
+                    .build();
+        }).collect(Collectors.toList());
+
     }
 
 }

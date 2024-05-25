@@ -42,10 +42,8 @@ public class SecurityConfig extends addCorsMappings {
          return http
                 .authorizeRequests((authz) -> authz
                         .requestMatchers("/auth/generateToken", "/auth/signup/user", "/auth/signup/admin").permitAll()
-                        .requestMatchers("/auth/hello").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated()
-//                        .requestMatchers("/api/v1/users").authenticated()
-//                        .requestMatchers("/api/v1//users/editar/{id}").authenticated()
+                        .requestMatchers("api/fileManager/**").authenticated()
 
                 )
                 .httpBasic(withDefaults()).csrf((csrf) -> csrf.disable())

@@ -201,10 +201,4 @@ public class SignController  {
 //        return (ResponseEntity<?>) ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString());
 //    }
 
-    //De prueba
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello World!";
-    }
-
 }

@@ -3,6 +3,9 @@ package com.example.crud.roles.CRUD_ROLES.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "documentos")
 public class Documentos {
@@ -14,9 +17,11 @@ public class Documentos {
     private String materia;
     private String type;
 
-    @Lob
-    private byte[] data;
-    private int user_id;
+    private String ruta;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users users;
 
 
     public int getIdDocumemtos() {
@@ -51,19 +56,21 @@ public class Documentos {
         this.type = type;
     }
 
-    public byte[] getData() {
-        return data;
+
+    public Users getUsers() {
+        return users;
     }
 
-    public void setData(byte[] data) {
-        this.data = data;
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
-    public int getUser_id() {
-        return user_id;
+
+    public String getRuta() {
+        return ruta;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
     }
 }
