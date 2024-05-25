@@ -32,7 +32,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String autHeader = request.getHeader("Autorizacion");
+        String autHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
 

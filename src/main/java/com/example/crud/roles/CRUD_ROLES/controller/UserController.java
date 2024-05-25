@@ -4,9 +4,11 @@ import com.example.crud.roles.CRUD_ROLES.model.Users;
 import com.example.crud.roles.CRUD_ROLES.repository.UserRespository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,14 +25,21 @@ public class UserController {
 
 
     @PatchMapping("/users/editar/{id}")
-    public Users editarUsuarios(@PathVariable Integer id, @RequestBody Users users){
+    public Users editarUsuarios(@PathVariable Integer id, @RequestBody Map<String, Object> users){
         Optional<Users> usersExistente = userRespository.findById(id);
         if (usersExistente.isPresent()){
             Users userActual = usersExistente.get();
-            userActual.setUsername(users.getUsername());
-            userActual.setUser_password(users.getUser_password());
-            userActual.setUser_name(users.getUser_name());
-            userActual.setUser_apellido(users.getUser_apellido());
+
+            if (users.containsKey("username")) {
+                userActual.setUsername((String) users.get("username"));
+            }
+            if (users.containsKey("user_name")) {
+                userActual.setUser_name((String) users.get("user_name"));
+            }
+            if (users.containsKey("user_apellido")) {
+                userActual.setUser_apellido((String) users.get("user_apellido"));
+            }
+
             return userRespository.save(userActual);
         }
         return null;
@@ -43,8 +52,13 @@ public class UserController {
 
 
     @DeleteMapping("/users/{id}")
-    public void elminarUsuarios(@PathVariable Integer id){
-        userRespository.deleteById(id);
+    public ResponseEntity<Void> elminarUsuarios(@PathVariable Integer id){
+        if (userRespository.existsById(id)) {
+            userRespository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

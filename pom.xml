@@ -112,8 +112,14 @@
             <artifactId>spring-security-config</artifactId>
             <version>6.2.4</version>
         </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents.core5</groupId>
+			<artifactId>httpcore5</artifactId>
+			<version>5.2.4</version>
+		</dependency>
 
-    </dependencies>
+
+	</dependencies>
 
 	<build>
 		<plugins>

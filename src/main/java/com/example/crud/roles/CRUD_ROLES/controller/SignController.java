@@ -1,9 +1,13 @@
 package com.example.crud.roles.CRUD_ROLES.controller;
 
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.example.crud.roles.CRUD_ROLES.Service.Implementaciones.UserDetailsImpl;
 import com.example.crud.roles.CRUD_ROLES.Service.Implementaciones.UserDetailsServiceImpl;
 import com.example.crud.roles.CRUD_ROLES.Service.request.LoginRequest;
 import com.example.crud.roles.CRUD_ROLES.Service.request.SingupRequest;
@@ -15,14 +19,19 @@ import com.example.crud.roles.CRUD_ROLES.repository.UserRespository;
 import com.example.crud.roles.CRUD_ROLES.security.JwtUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
@@ -102,86 +111,100 @@ public class SignController  {
 
     }
     @PostMapping("/generateToken")
-        public ResponseEntity<String> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password()));
+        public ResponseEntity<Map> authenticateAndGetToken(@RequestBody LoginRequest loginRequest) { Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getUser_password()));
         if (authentication.isAuthenticated()) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+            Long userId = ((UserDetailsImpl) userDetails).getId();
+            String username = userDetails.getUsername();
             String token = jwtUtils.generateToken(loginRequest.getUsername());
-            return ResponseEntity.ok(token);
+
+            String rol = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(", "));
+
+
+            // Crear un mapa para almacenar el token y el ID del usuario
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("userId", userId.toString());
+            response.put("Rol", rol);
+            response.put("Username", username);
+
+            return ResponseEntity.ok(response);
+
+
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
+
     }
 
 
-//    @PostMapping("/signup/admin")
-//    public  ResponseEntity<?> registerAdmin(@Valid @RequestBody SingupRequest singupRequest){
-//
-//        if (userRespository.existsByUsername(singupRequest.getUsername())){
-//            return  ResponseEntity.badRequest().body("Error: Username esta tomado");
-//        }
-//
-//
-//        if (singupRequest.getPassword() != "123456" ){
-//            return  ResponseEntity.badRequest().body("No es un admin");
-//        }
-//
-//        //Crear nueva cuenta usuario
-//
-//        Users user = new Users(
-//                singupRequest.getUsername(),
-//                encoder.encode(singupRequest.getPassword()),
-//                singupRequest.getUser_name(),
-//                singupRequest.getUser_apellido()
-//        );
-//        Set <String> strRoles = singupRequest.getRole();
-//        Set <Roles> roles = new HashSet<>();
-//
-//        if (strRoles == null){
-//
-//            Roles userRole = rolesRespository.findByName(ERole.ROLE_ADMIN);
-//            if (userRole == null){
-//                userRole = new Roles();
-//                userRole.setName(ERole.ROLE_ADMIN);
-//                rolesRespository.save(userRole);
-//            }
-//            roles.add(userRole);
-//
-//        }else {
-//
-//            strRoles.forEach(role -> {
-//                switch (role){
-//                    default:
-//                        Roles userRole = rolesRespository.findByName(ERole.ROLE_ADMIN);
-//                        if (userRole != null){
-//                            new RuntimeException("Error: Rol no encontrado");
-//                        }
-//                        roles.add(userRole);
-//                }
-//            });
-//
-//        }
-//
-//        user.setRoles(roles);
-//        userRespository.save(user);
-//
-//
-//        return  ResponseEntity.ok("User registered successfully!");
-//
-//    }
-//
-//    //Salir de sesion
+    //Registro de Admin
+    @PostMapping("/signup/admin")
+    public  ResponseEntity<?> registerAdmin(@Valid @RequestBody SingupRequest singupRequest){
+
+        if (userRespository.existsByUsername(singupRequest.getUsername())){
+            return  ResponseEntity.badRequest().body("Error: Username esta tomado");
+        }
+
+
+
+        //Crear nueva cuenta usuario
+
+        Users user = new Users(
+                singupRequest.getUsername(),
+                passwordEncoder.encode(singupRequest.getPassword()),
+                singupRequest.getUser_name(),
+                singupRequest.getUser_apellido()
+        );
+        Set <String> strRoles = singupRequest.getRole();
+        Set <Roles> roles = new HashSet<>();
+
+        if (strRoles == null){
+
+            Roles userRole = rolesRespository.findByName(ERole.ROLE_ADMIN);
+            if (userRole == null){
+                userRole = new Roles();
+                userRole.setName(ERole.ROLE_ADMIN);
+                rolesRespository.save(userRole);
+            }
+            roles.add(userRole);
+
+        }else {
+
+            strRoles.forEach(role -> {
+                switch (role){
+                    default:
+                        Roles userRole = rolesRespository.findByName(ERole.ROLE_ADMIN);
+                        if (userRole != null){
+                            new RuntimeException("Error: Rol no encontrado");
+                        }
+                        roles.add(userRole);
+                }
+            });
+
+        }
+
+        user.setRoles(roles);
+        userRespository.save(user);
+
+
+        return  ResponseEntity.ok("User registered successfully!");
+
+    }
+
+//      Salir de sesion
 //    @PostMapping("/logout")
 //    public ResponseEntity<?> cerraUsuario(){
 //        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
-//                .body("Salio de sesion");
+//        return (ResponseEntity<?>) ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString());
 //    }
 
-
+    //De prueba
     @GetMapping("/hello")
     public String hello() {
         return "Hello World!";
     }
-
 
 }

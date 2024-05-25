@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Data
 @Table(name = "documentos")
 public class Documentos {
 
@@ -12,9 +11,13 @@ public class Documentos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idDocumemtos;
     private String nombreDocumentos;
-    private String url;
-    private int materia_id;
+    private String materia;
+    private String type;
+
+    @Lob
+    private byte[] data;
     private int user_id;
+
 
     public int getIdDocumemtos() {
         return idDocumemtos;
@@ -32,20 +35,28 @@ public class Documentos {
         this.nombreDocumentos = nombreDocumentos;
     }
 
-    public String getUrl() {
-        return url;
+    public String getMateria() {
+        return materia;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setMateria(String materia) {
+        this.materia = materia;
     }
 
-    public int getMateria_id() {
-        return materia_id;
+    public String getType() {
+        return type;
     }
 
-    public void setMateria_id(int materia_id) {
-        this.materia_id = materia_id;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     public int getUser_id() {

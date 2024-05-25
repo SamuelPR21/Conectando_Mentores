@@ -19,13 +19,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig extends addCorsMappings {
     private final AuthTokenFilter authTokenFilter;
 
     public SecurityConfig(AuthTokenFilter authTokenFilter) {
@@ -40,8 +41,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception{
          return http
                 .authorizeRequests((authz) -> authz
-                        .requestMatchers("/auth/generateToken", "/auth/signup/user").permitAll()
+                        .requestMatchers("/auth/generateToken", "/auth/signup/user", "/auth/signup/admin").permitAll()
                         .requestMatchers("/auth/hello").authenticated()
+                        .requestMatchers("/api/v1/users/**").authenticated()
+//                        .requestMatchers("/api/v1/users").authenticated()
+//                        .requestMatchers("/api/v1//users/editar/{id}").authenticated()
+
                 )
                 .httpBasic(withDefaults()).csrf((csrf) -> csrf.disable())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,6 +68,10 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-
-
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/")
+                .allowedOrigins("*")
+                .allowedMethods("*");
+    }
 }
