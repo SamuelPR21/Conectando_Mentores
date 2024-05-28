@@ -194,11 +194,5 @@ public class SignController  {
 
     }
 
-//      Salir de sesion
-//    @PostMapping("/logout")
-//    public ResponseEntity<?> cerraUsuario(){
-//        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-//        return (ResponseEntity<?>) ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString());
-//    }
 
 }

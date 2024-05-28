@@ -2,8 +2,8 @@ package com.example.crud.roles.CRUD_ROLES.controller;
 
 import com.example.crud.roles.CRUD_ROLES.model.Users;
 import com.example.crud.roles.CRUD_ROLES.repository.UserRespository;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,12 +52,13 @@ public class UserController {
 
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> elminarUsuarios(@PathVariable Integer id){
+    public ResponseEntity<String> elminarUsuarios(@PathVariable Integer id){
         if (userRespository.existsById(id)) {
             userRespository.deleteById(id);
-            return ResponseEntity.ok().build();
+            //return ResponseEntity.ok().build();
+            return new ResponseEntity<String>("ok", HttpStatus.OK);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok("Usuario No encontrado");
         }
     }
 

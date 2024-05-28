@@ -39,8 +39,8 @@ public class Users {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Roles> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Documentos> documentos = new HashSet<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private Set<Documentos> documentos = new HashSet<>();
 
 
     // Constructor con parámetros username y password
@@ -57,13 +57,13 @@ public class Users {
 
     }
 
-    public Set<Documentos> getDocumentos() {
-        return documentos;
-    }
-
-    public void setDocumentos(Set<Documentos> documentos) {
-        this.documentos = documentos;
-    }
+//    public Set<Documentos> getDocumentos() {
+//        return documentos;
+//    }
+//
+//    public void setDocumentos(Set<Documentos> documentos) {
+//        this.documentos = documentos;
+//    }
 
     public int getUser_id() {
         return user_id;
